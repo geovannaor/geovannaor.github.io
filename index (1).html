@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geovanna — Cybersecurity Analyst</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* ── RESET & BASE ── */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg:        #0b0c0b;
+    --surface:   #111311;
+    --surface2:  #161a16;
+    --accent:    #4a7c59;
+    --accent2:   #6aad82;
+    --accent-dim:#2a4a35;
+    --text:      #e4e6e0;
+    --text-mid:  #9aa396;
+    --text-dim:  #5a635c;
+    --border:    #1e231e;
+    --border2:   #2a322a;
+    --mono:      'JetBrains Mono', monospace;
+    --serif:     'Instrument Serif', serif;
+    --sans:      'Syne', sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background: #0b0c0b;
+  }
+
+  body {
+    background: #0b0c0b;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    cursor: default;
+    min-height: 100vh;
+  }
+
+  /* ── NOISE TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2.5rem;
+    background: rgba(11, 12, 11, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-domain {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-decoration: none;
+  }
+
+  .hamburger {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 4px;
+    background: none;
+    border: none;
+  }
+
+  .hamburger span {
+    display: block;
+    width: 22px;
+    height: 1.5px;
+    background: var(--text-mid);
+    transition: all 0.3s ease;
+    transform-origin: center;
+  }
+
+  .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+  /* ── NAV MENU ── */
+  .nav-menu {
+    position: fixed;
+    top: 0; right: -100%;
+    width: min(320px, 80vw);
+    height: 100vh;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3rem 2.5rem;
+    transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 999;
+  }
+
+  .nav-menu.open { right: 0; }
+
+  .nav-menu a {
+    font-family: var(--sans);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-decoration: none;
+    display: block;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    transition: color 0.2s ease;
+    letter-spacing: -0.02em;
+  }
+
+  .nav-menu a:hover { color: var(--accent2); }
+  .nav-menu a:last-child { border-bottom: none; }
+
+  .nav-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 998;
+  }
+
+  .nav-overlay.open { opacity: 1; pointer-events: all; }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 8rem 2.5rem 4rem;
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(circle at 30% 40%, rgba(74,124,89,0.08), transparent 60%);
+  }
+
+  #hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border2), transparent);
+  }
+
+  /* subtle scan line animation */
+  .scanline {
+    position: absolute;
+    top: -100%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(74,124,89,0.08), transparent);
+    animation: scan 8s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes scan {
+    0% { top: -2px; }
+    100% { top: 100%; }
+  }
+
+  .hero-photo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .photo-frame {
+    width: 520px;
+    height: 346px;
+    border: 1px solid var(--border2);
+    background: var(--surface2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .photo-frame::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--accent-dim) 0%, transparent 60%);
+    opacity: 0.4;
+  }
+
+  .photo-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .photo-placeholder svg {
+    width: 80px;
+    height: 80px;
+    opacity: 0.15;
+  }
+
+  .photo-placeholder span {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  /* corner accents */
+  .photo-frame::after {
+    content: '';
+    position: absolute;
+    top: 12px; left: 12px;
+    right: 12px; bottom: 12px;
+    border-top: 1px solid var(--accent-dim);
+    border-left: 1px solid var(--accent-dim);
+    pointer-events: none;
+  }
+
+  .hero-text {
+    padding: 2rem 2rem 2rem 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .hero-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .hero-name {
+    font-family: var(--sans);
+    font-size: clamp(3rem, 5vw, 4.5rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    color: var(--text);
+  }
+
+  .hero-name em {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--accent2);
+    font-weight: 400;
+    font-size: 0.9em;
+  }
+
+  .hero-tagline {
+    font-size: 1rem;
+    color: var(--text-mid);
+    line-height: 1.6;
+    max-width: 38ch;
+    border-left: 2px solid var(--accent-dim);
+    padding-left: 1rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+  }
+
+  .hero-meta-item {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .hero-meta-item::before {
+    content: '//';
+    color: var(--accent-dim);
+  }
+
+  /* ── SECTION BASE ── */
+  section {
+    padding: 6rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border2);
+    max-width: 80px;
+  }
+
+  .section-title {
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 3rem;
+    color: var(--text);
+  }
+
+  /* ── CREDENTIALS ── */
+  #credentials .creds-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 4rem;
+  }
+
+  .cert-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    padding: 1.5rem;
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    position: relative;
+    transition: border-color 0.3s ease;
+  }
+
+  .cert-card:hover { border-color: var(--accent-dim); }
+
+  .cert-badge {
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--accent);
+    text-align: center;
+    line-height: 1.3;
+    letter-spacing: 0.05em;
+  }
+
+  .cert-info { flex: 1; }
+
+  .cert-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 0.3rem;
+  }
+
+  .cert-issuer {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.4rem;
+  }
+
+  .cert-date {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--accent);
+  }
+
+  .cert-status {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    padding: 2px 6px;
+    border: 1px solid;
+  }
+
+  .cert-status.earned {
+    color: var(--accent2);
+    border-color: var(--accent-dim);
+  }
+
+  .cert-status.progress {
+    color: var(--text-dim);
+    border-color: var(--border2);
+  }
+
+  /* ── SKILLS ── */
+  .skills-section { margin-top: 0; }
+
+  .skills-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .skills-group {
+    margin-bottom: 2.5rem;
+  }
+
+  .skills-group-title {
+    font-family: var(--mono);
+    font-size: 0.63rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .skills-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .skill-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.9rem;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text-mid);
+    letter-spacing: 0.04em;
+    transition: all 0.2s ease;
+    cursor: default;
+    position: relative;
+  }
+
+  .skill-chip:hover {
+    border-color: var(--accent-dim);
+    color: var(--text);
+    background: var(--surface2);
+  }
+
+  .skill-chip .skill-icon {
+    font-size: 0.9rem;
+    line-height: 1;
+  }
+
+  /* ── PROJECTS CAROUSEL ── */
+  #projects {
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+
+  #projects .projects-header {
+    padding: 6rem 2.5rem 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .carousel-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  .carousel-track-outer {
+    overflow: hidden;
+    padding: 2.5rem 0 3rem;
+  }
+
+  .carousel-track {
+    display: flex;
+    gap: 1.5rem;
+    padding: 0 2.5rem;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+    align-items: center;
+  }
+
+  .project-card {
+    flex: 0 0 340px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.45s ease,
+                border-color 0.3s ease;
+    transform: scale(0.85);
+    opacity: 0.5;
+  }
+
+  .project-card.center {
+    transform: scale(1.0);
+    opacity: 1;
+    border-color: var(--accent-dim);
+  }
+
+  .project-card.center:hover {
+    border-color: var(--accent);
+  }
+
+  .project-card:not(.center):hover {
+    opacity: 0.75;
+    border-color: var(--border2);
+  }
+
+  .project-img {
+    width: 100%;
+    height: 220px;
+    background: var(--surface2);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .project-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+  }
+
+  .project-card:hover .project-img img { opacity: 1; }
+
+  .project-img-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+    height: 100%;
+  }
+
+  .project-img-placeholder .tool-name {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+
+  .project-img::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 80px;
+    background: linear-gradient(transparent, var(--surface));
+    pointer-events: none;
+  }
+
+  .project-hover-hint {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    background: rgba(11,12,11,0.8);
+    padding: 3px 7px;
+    border: 1px solid var(--border);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .project-card:hover .project-hover-hint { opacity: 1; }
+
+  .project-info {
+    padding: 1.25rem 1.5rem 1.5rem;
+  }
+
+  .project-domain {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .project-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    margin-bottom: 0.6rem;
+    line-height: 1.3;
+  }
+
+  .project-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .tool-tag {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    color: var(--text-dim);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 2px 7px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── CAROUSEL NAV ── */
+  .carousel-nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 2.5rem;
+    margin-top: 1rem;
+  }
+
+  .carousel-btn {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border2);
+    background: var(--surface);
+    color: var(--text-mid);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .carousel-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent2);
+    background: var(--surface2);
+  }
+
+  .carousel-btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .carousel-dots {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .carousel-dot {
+    width: 20px;
+    height: 2px;
+    background: var(--border2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .carousel-dot.active {
+    background: var(--accent);
+    width: 36px;
+  }
+
+  /* ── PROJECT OVERLAY ── */
+  .overlay-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(7, 8, 7, 0.92);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .overlay-backdrop.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .overlay-panel {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    max-width: 720px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    transform: translateY(20px);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .overlay-backdrop.open .overlay-panel {
+    transform: translateY(0);
+  }
+
+  .overlay-img {
+    width: 100%;
+    height: 240px;
+    background: var(--surface2);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .overlay-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.5;
+  }
+
+  .overlay-img-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .overlay-img-placeholder span {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+
+  .overlay-img-label {
+    position: absolute;
+    bottom: 1rem;
+    left: 1.5rem;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .overlay-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 36px;
+    height: 36px;
+    background: rgba(11,12,11,0.8);
+    border: 1px solid var(--border2);
+    color: var(--text-mid);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    z-index: 10;
+  }
+
+  .overlay-close:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  .overlay-body {
+    padding: 2rem 2.5rem 2.5rem;
+  }
+
+  .overlay-domain {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .overlay-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 1.25rem;
+    line-height: 1.2;
+  }
+
+  .overlay-desc {
+    font-size: 0.9rem;
+    color: var(--text-mid);
+    line-height: 1.7;
+    margin-bottom: 1.75rem;
+  }
+
+  .overlay-section-title {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .overlay-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .overlay-tag {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--text-mid);
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    padding: 4px 10px;
+    letter-spacing: 0.04em;
+  }
+
+  .overlay-notes {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .overlay-notes-label {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .overlay-notes-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--accent2);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: color 0.2s ease, gap 0.2s ease;
+  }
+
+  .overlay-notes-link:hover {
+    color: var(--text);
+    gap: 0.65rem;
+  }
+
+  .overlay-notes-link .arrow {
+    transition: transform 0.2s ease;
+  }
+
+  .overlay-notes-link:hover .arrow {
+    transform: translateX(3px);
+  }
+
+  .overlay-links {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .overlay-link {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent2);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: color 0.2s ease;
+  }
+
+  .overlay-link:hover { color: var(--text); }
+
+  /* ── CONTACT ── */
+  #contact {
+    text-align: center;
+    padding: 8rem 2.5rem;
+    border-bottom: none;
+  }
+
+  .contact-pre {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    margin-bottom: 1rem;
+  }
+
+  .contact-heading {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.5rem;
+  }
+
+  .contact-sub {
+    font-size: 0.9rem;
+    color: var(--text-mid);
+    margin-bottom: 3rem;
+    max-width: 38ch;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .contact-links {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .contact-link {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 1.75rem;
+    border: 1px solid var(--border2);
+    color: var(--text-mid);
+    text-decoration: none;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    transition: all 0.25s ease;
+    background: var(--surface);
+  }
+
+  .contact-link:hover {
+    border-color: var(--accent);
+    color: var(--accent2);
+    background: var(--surface2);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 2rem 2.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  footer span {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+  }
+
+  footer .footer-accent {
+    color: var(--accent);
+  }
+
+  /* ── SCROLL ANIMATIONS ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── CUSTOM SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--accent-dim); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    #hero {
+      grid-template-columns: 1fr;
+      padding: 7rem 1.5rem 3rem;
+      gap: 2rem;
+    }
+
+    .hero-photo { order: 1; }
+    .hero-text { order: 2; padding: 0; }
+
+    .photo-frame {
+      width: 300px;
+      height: 200px;
+    }
+
+    section { padding: 4rem 1.5rem; }
+
+    .project-card { flex: 0 0 280px; }
+    .project-card.active { flex: 0 0 320px; }
+
+    nav { padding: 1.25rem 1.5rem; }
+
+    #projects .projects-header { padding: 4rem 1.5rem 2rem; }
+    .carousel-track { padding: 0 1.5rem; }
+    .carousel-nav { padding: 0 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-domain">softarmorhq.com</a>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="nav-overlay" id="navOverlay"></div>
+<div class="nav-menu" id="navMenu">
+  <a href="#hero" onclick="closeMenu()">Home</a>
+  <a href="#credentials" onclick="closeMenu()">Credentials</a>
+  <a href="#projects" onclick="closeMenu()">Projects</a>
+  <a href="#contact" onclick="closeMenu()">Contact</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="scanline"></div>
+
+  <div class="hero-photo">
+    <div class="photo-frame">
+      <img src="hero_image_final.png" alt="Analyst workspace" style="width: 100%; height: 100%; object-fit: cover;">
+    </div>
+  </div>
+
+  <div class="hero-text reveal">
+    <div class="hero-label">// cybersecurity analyst</div>
+    <h1 class="hero-name">Geo<em>vanna</em></h1>
+    <p class="hero-tagline">
+      Cybersecurity analyst with an infrastructure background and a focus on identifying what doesn't belong.
+    </p>
+    <div class="hero-meta">
+      <span class="hero-meta-item">Long Island, NY</span>
+      <span class="hero-meta-item">Remote / Hybrid</span>
+      <span class="hero-meta-item">Open to opportunities</span>
+    </div>
+  </div>
+</section>
+
+<!-- CREDENTIALS & SKILLS -->
+<section id="credentials">
+  <div class="section-label">credentials</div>
+  <h2 class="section-title">Certifications</h2>
+
+  <div class="creds-grid reveal">
+    <!-- ISC2 CC -->
+    <div class="cert-card">
+      <div class="cert-status earned">EARNED</div>
+      <div class="cert-badge">ISC²<br>CC</div>
+      <div class="cert-info">
+        <div class="cert-name">Certified in Cybersecurity (CC)</div>
+        <div class="cert-issuer">ISC²</div>
+        <div class="cert-date">October 2025</div>
+      </div>
+    </div>
+
+    <!-- CompTIA Security+ -->
+    <div class="cert-card">
+      <div class="cert-status progress">IN PROGRESS</div>
+      <div class="cert-badge">Comp<br>TIA<br>Sec+</div>
+      <div class="cert-info">
+        <div class="cert-name">CompTIA Security+</div>
+        <div class="cert-issuer">CompTIA</div>
+        <div class="cert-date">Expected Apr / May 2026</div>
+      </div>
+    </div>
+
+    <!-- JHU Certificate -->
+    <div class="cert-card">
+      <div class="cert-status progress">IN PROGRESS</div>
+      <div class="cert-badge">JHU<br>Cert</div>
+      <div class="cert-info">
+        <div class="cert-name">Professional Certificate in Cybersecurity: IT & Data Security in the Age of AI</div>
+        <div class="cert-issuer">Johns Hopkins University</div>
+        <div class="cert-date">Expected May 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SKILLS -->
+  <div class="skills-section reveal">
+    <div class="skills-label">Tools & Technical Skills</div>
+
+    <div class="skills-group">
+      <div class="skills-group-title">Analysis & Investigation</div>
+      <div class="skills-row">
+        <div class="skill-chip"><span class="skill-icon">🔬</span> ANY.RUN</div>
+        <div class="skill-chip"><span class="skill-icon">🛡️</span> VirusTotal</div>
+        <div class="skill-chip"><span class="skill-icon">📊</span> MITRE ATT&CK</div>
+        <div class="skill-chip"><span class="skill-icon">🔧</span> CyberChef</div>
+        <div class="skill-chip"><span class="skill-icon">🦈</span> Wireshark</div>
+      </div>
+    </div>
+
+    <div class="skills-group">
+      <div class="skills-group-title">Vulnerability & Compliance</div>
+      <div class="skills-row">
+        <div class="skill-chip"><span class="skill-icon">🔍</span> Nessus</div>
+        <div class="skill-chip"><span class="skill-icon">📋</span> NIST RMF</div>
+      </div>
+    </div>
+
+    <div class="skills-group">
+      <div class="skills-group-title">Infrastructure & Network</div>
+      <div class="skills-row">
+        <div class="skill-chip"><span class="skill-icon">🔥</span> pfSense</div>
+        <div class="skill-chip"><span class="skill-icon">🌐</span> TCP/IP</div>
+        <div class="skill-chip"><span class="skill-icon">📡</span> DNS</div>
+        <div class="skill-chip"><span class="skill-icon">🔒</span> VPN</div>
+      </div>
+    </div>
+
+    <div class="skills-group">
+      <div class="skills-group-title">Cloud</div>
+      <div class="skills-row">
+        <div class="skill-chip"><span class="skill-icon">☁️</span> AWS IAM</div>
+        <div class="skill-chip"><span class="skill-icon">🪣</span> S3</div>
+        <div class="skill-chip"><span class="skill-icon">🏗️</span> VPC</div>
+      </div>
+    </div>
+
+    <div class="skills-group">
+      <div class="skills-group-title">Background & Transferable</div>
+      <div class="skills-row">
+        <div class="skill-chip"><span class="skill-icon">🔌</span> API Integration</div>
+        <div class="skill-chip"><span class="skill-icon">🖥️</span> Technical Support</div>
+        <div class="skill-chip"><span class="skill-icon">🌍</span> Web Maintenance</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS CAROUSEL -->
+<div id="projects">
+  <div class="projects-header">
+    <div class="section-label">work</div>
+    <h2 class="section-title">Projects</h2>
+  </div>
+
+  <div class="carousel-wrapper">
+    <div class="carousel-track-outer">
+      <div class="carousel-track" id="carouselTrack">
+
+        <!-- PROJECT 1: Medusa Ransomware -->
+        <div class="project-card" onclick="openOverlay(0)">
+          <div class="project-img">
+            <div class="project-img-placeholder">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <rect x="4" y="4" width="32" height="32" rx="2" stroke="#4a7c59" stroke-width="1"/>
+                <path d="M12 20h16M20 12v16" stroke="#4a7c59" stroke-width="1" opacity="0.5"/>
+                <circle cx="20" cy="20" r="6" stroke="#4a7c59" stroke-width="1"/>
+              </svg>
+              <span class="tool-name">ANY.RUN · VirusTotal</span>
+            </div>
+            <div class="project-hover-hint">click to expand</div>
+          </div>
+          <div class="project-info">
+            <div class="project-domain">Malware Analysis</div>
+            <div class="project-title">Medusa Ransomware — Behavioral Analysis</div>
+            <div class="project-tools">
+              <span class="tool-tag">ANY.RUN</span>
+              <span class="tool-tag">VirusTotal</span>
+              <span class="tool-tag">MITRE ATT&CK</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROJECT 2: Reverse Shell -->
+        <div class="project-card" onclick="openOverlay(1)">
+          <div class="project-img">
+            <div class="project-img-placeholder">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <rect x="4" y="4" width="32" height="32" rx="2" stroke="#4a7c59" stroke-width="1"/>
+                <path d="M12 20h16M20 12v16" stroke="#4a7c59" stroke-width="1" opacity="0.5"/>
+                <circle cx="20" cy="20" r="6" stroke="#4a7c59" stroke-width="1"/>
+              </svg>
+              <span class="tool-name">Metasploit · Meterpreter</span>
+            </div>
+            <div class="project-hover-hint">click to expand</div>
+          </div>
+          <div class="project-info">
+            <div class="project-domain">Offensive Security</div>
+            <div class="project-title">Reverse Shell Deployment & Post-Exploitation</div>
+            <div class="project-tools">
+              <span class="tool-tag">Metasploit</span>
+              <span class="tool-tag">msfvenom</span>
+              <span class="tool-tag">Meterpreter</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROJECT 3: Deleted File Recovery -->
+        <div class="project-card" onclick="openOverlay(2)">
+          <div class="project-img">
+            <div class="project-img-placeholder">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <rect x="4" y="4" width="32" height="32" rx="2" stroke="#4a7c59" stroke-width="1"/>
+                <path d="M12 20h16M20 12v16" stroke="#4a7c59" stroke-width="1" opacity="0.5"/>
+                <circle cx="20" cy="20" r="6" stroke="#4a7c59" stroke-width="1"/>
+              </svg>
+              <span class="tool-name">Metasploit · Forensics</span>
+            </div>
+            <div class="project-hover-hint">click to expand</div>
+          </div>
+          <div class="project-info">
+            <div class="project-domain">Digital Forensics</div>
+            <div class="project-title">Deleted File Recovery via Post-Exploitation</div>
+            <div class="project-tools">
+              <span class="tool-tag">Metasploit</span>
+              <span class="tool-tag">Meterpreter</span>
+              <span class="tool-tag">Forensics</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROJECT 4: Placeholder -->
+        <div class="project-card" onclick="openOverlay(3)">
+          <div class="project-img">
+            <div class="project-img-placeholder">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="14" stroke="#2a4a35" stroke-width="1"/>
+                <path d="M8 20h24M20 8v24" stroke="#2a4a35" stroke-width="1"/>
+              </svg>
+              <span class="tool-name">Coming Soon</span>
+            </div>
+            <div class="project-hover-hint">click to expand</div>
+          </div>
+          <div class="project-info">
+            <div class="project-domain">Vulnerability Management</div>
+            <div class="project-title">Performing a Compliance Scan with Nessus</div>
+            <div class="project-tools">
+              <span class="tool-tag">Nessus</span>
+              <span class="tool-tag">Vulnerability Scanning</span>
+              <span class="tool-tag">Compliance</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROJECT 5: Placeholder -->
+        <div class="project-card" onclick="openOverlay(4)">
+          <div class="project-img">
+            <div class="project-img-placeholder">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="14" stroke="#2a4a35" stroke-width="1"/>
+                <path d="M8 20h24M20 8v24" stroke="#2a4a35" stroke-width="1"/>
+              </svg>
+              <span class="tool-name">Coming Soon</span>
+            </div>
+            <div class="project-hover-hint">click to expand</div>
+          </div>
+          <div class="project-info">
+            <div class="project-domain">Risk Management</div>
+            <div class="project-title">Conducting a Risk Assessment — NIST RMF</div>
+            <div class="project-tools">
+              <span class="tool-tag">NIST RMF</span>
+              <span class="tool-tag">Risk Analysis</span>
+              <span class="tool-tag">Compliance</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="carousel-nav">
+      <button class="carousel-btn" id="prevBtn" onclick="moveCarousel(-1)" aria-label="Previous">&#8592;</button>
+      <div class="carousel-dots" id="carouselDots"></div>
+      <button class="carousel-btn" id="nextBtn" onclick="moveCarousel(1)" aria-label="Next">&#8594;</button>
+    </div>
+  </div>
+</div>
+
+<!-- OVERLAY -->
+<div class="overlay-backdrop" id="overlayBackdrop" onclick="handleOverlayClick(event)">
+  <div class="overlay-panel" id="overlayPanel">
+    <button class="overlay-close" onclick="closeOverlay()">&#x2715;</button>
+    <div class="overlay-img" id="overlayImg">
+      <div class="overlay-img-placeholder" id="overlayImgContent"></div>
+      <div class="overlay-img-label" id="overlayImgLabel"></div>
+    </div>
+    <div class="overlay-body">
+      <div class="overlay-domain" id="overlayDomain"></div>
+      <div class="overlay-title" id="overlayTitle"></div>
+      <div class="overlay-desc" id="overlayDesc"></div>
+
+      <div class="overlay-section-title">Tools Used</div>
+      <div class="overlay-tags" id="overlayTools"></div>
+
+      <div class="overlay-section-title">Skills Demonstrated</div>
+      <div class="overlay-tags" id="overlaySkills"></div>
+
+      <div class="overlay-notes" id="overlayNotes"></div>
+
+      <div class="overlay-links" id="overlayLinks"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-pre">// let's connect</div>
+  <h2 class="contact-heading">Get in touch</h2>
+  <p class="contact-sub">Open to junior cybersecurity roles, SOC analyst positions, and remote opportunities.</p>
+  <div class="contact-links">
+    <a href="https://linkedin.com/in/" target="_blank" class="contact-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+      </svg>
+      LinkedIn
+    </a>
+    <a href="/cdn-cgi/l/email-protection#532a3c262113363e323a3f7d303c3e" class="contact-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+      </svg>
+      Email
+    </a>
+  </div>
+</section>
+
+<footer>
+  <span>Geovanna — <span class="footer-accent">softarmorhq.com</span></span>
+  <span>Cybersecurity Analyst · Long Island, NY</span>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  // ── PROJECT DATA ──
+  const projects = [
+    {
+      domain: 'Malware Analysis',
+      title: 'Medusa Ransomware — Behavioral Analysis',
+      desc: 'Analyzed a Medusa ransomware sample in the ANY.RUN sandbox to observe execution behavior and identify malicious system activity. Investigated process execution, file access attempts, and persistence mechanisms including registry modification and pre-encryption staging. Observed system reconnaissance and shadow copy deletion, behaviors consistent with ransomware preparation. Correlated findings with the MITRE ATT&CK framework and verified indicators of compromise using VirusTotal.',
+      tools: ['ANY.RUN', 'VirusTotal', 'MITRE ATT&CK'],
+      skills: ['Dynamic Malware Analysis', 'Behavioral Threat Hunting', 'MITRE ATT&CK Mapping', 'IOC Identification', 'Multi-Source Verification'],
+      imgLabel: 'ANY.RUN · Sandbox Analysis',
+      github: '',
+      writeup: '',
+      notes: 'https://www.notion.so/Medusa-Ransomware-Behavioral-Analysis-30ca22472fd380549705e6271e9b666e?source=copy_link'
+    },
+    {
+      domain: 'Offensive Security',
+      title: 'Reverse Shell Deployment & Post-Exploitation',
+      desc: 'Constructed a reverse TCP Meterpreter payload using msfvenom and established a remote session with a Windows 10 system in a controlled lab environment. Configured a Metasploit multi/handler listener and performed post-compromise enumeration including system information gathering, network inspection, and filesystem navigation.',
+      tools: ['Metasploit Framework', 'msfvenom', 'Meterpreter', 'Kali Linux', 'Windows 10', 'VirtualBox'],
+      skills: ['Payload Construction', 'Reverse Shell Deployment', 'Session Management', 'System Enumeration', 'Post-Exploitation Reconnaissance'],
+      imgLabel: 'Metasploit · Meterpreter Session',
+      github: '',
+      writeup: '',
+      notes: ''
+    },
+    {
+      domain: 'Digital Forensics',
+      title: 'Deleted File Recovery via Post-Exploitation',
+      desc: 'Recovered deleted files from a Windows 10 system through an established Meterpreter session in a controlled lab environment. Escalated privileges to system level and used Metasploit\'s forensic recovery module to enumerate deleted files from the target filesystem. Retrieved deleted artifacts and examined recovered files stored in the Metasploit loot directory.',
+      tools: ['Metasploit Framework', 'Meterpreter', 'Kali Linux', 'Windows 10', 'VirtualBox'],
+      skills: ['Post-Exploitation Forensics', 'Deleted File Recovery', 'Privilege Escalation', 'Session Management', 'Filesystem Enumeration'],
+      imgLabel: 'Metasploit · Forensic Recovery',
+      github: '',
+      writeup: '',
+      notes: ''
+    },
+    {
+      domain: 'Vulnerability Management',
+      title: 'Performing a Compliance Scan with Nessus',
+      desc: 'Coming soon — using Nessus to identify system vulnerabilities and assess compliance with security standards.',
+      tools: ['Nessus'],
+      skills: ['Vulnerability Scanning', 'Compliance Auditing', 'Report Interpretation', 'Remediation Tracking'],
+      imgLabel: 'Nessus · Vulnerability Scan',
+      github: '',
+      writeup: '',
+      notes: ''
+    },
+    {
+      domain: 'Risk Management',
+      title: 'Conducting a Risk Assessment — NIST RMF',
+      desc: 'Coming soon — applying NIST RMF methodology to evaluate and manage cybersecurity risks systematically.',
+      tools: ['NIST RMF'],
+      skills: ['Risk Identification', 'Impact Analysis', 'Control Selection', 'Compliance Documentation'],
+      imgLabel: 'NIST RMF · Risk Framework',
+      github: '',
+      writeup: '',
+      notes: ''
+    }
+  ];
+
+  // ── OVERLAY ──
+  function openOverlay(index) {
+    const p = projects[index];
+    document.getElementById('overlayDomain').textContent = p.domain;
+    document.getElementById('overlayTitle').textContent = p.title;
+    document.getElementById('overlayDesc').textContent = p.desc;
+    document.getElementById('overlayImgLabel').textContent = p.imgLabel;
+
+    document.getElementById('overlayImgContent').innerHTML = `
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+        <rect x="4" y="4" width="40" height="40" rx="2" stroke="#4a7c59" stroke-width="1"/>
+        <path d="M14 24h20M24 14v20" stroke="#4a7c59" stroke-width="1" opacity="0.5"/>
+        <circle cx="24" cy="24" r="8" stroke="#4a7c59" stroke-width="1"/>
+      </svg>
+      <span style="font-family:var(--mono);font-size:0.65rem;color:var(--accent);letter-spacing:0.1em;">${p.imgLabel}</span>
+    `;
+
+    const toolsEl = document.getElementById('overlayTools');
+    toolsEl.innerHTML = p.tools.map(t => `<span class="overlay-tag">${t}</span>`).join('');
+
+    const skillsEl = document.getElementById('overlaySkills');
+    skillsEl.innerHTML = p.skills.map(s => `<span class="overlay-tag">${s}</span>`).join('');
+
+    const linksEl = document.getElementById('overlayLinks');
+    let linksHTML = '';
+    if (p.github) linksHTML += `<a href="${p.github}" class="overlay-link" target="_blank">↗ GitHub</a>`;
+    if (p.writeup) linksHTML += `<a href="${p.writeup}" class="overlay-link" target="_blank">↗ Full Writeup</a>`;
+    linksEl.innerHTML = linksHTML;
+    linksEl.style.display = (p.github || p.writeup) ? 'flex' : 'none';
+
+    const notesEl = document.getElementById('overlayNotes');
+    notesEl.style.display = 'block';
+    if (p.notes) {
+      notesEl.innerHTML = `
+        <div class="overlay-notes-label">Investigation Notes</div>
+        <a href="${p.notes}" class="overlay-notes-link" target="_blank" rel="noopener noreferrer">
+          View Investigation Notes <span class="arrow">→</span>
+        </a>
+      `;
+    } else {
+      notesEl.innerHTML = `
+        <div class="overlay-notes-label">Investigation Notes</div>
+        <span class="overlay-notes-link" style="opacity:0.4;cursor:default;">
+          View Investigation Notes <span class="arrow">→</span>
+        </span>
+      `;
+    }
+
+    document.getElementById('overlayBackdrop').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeOverlay() {
+    document.getElementById('overlayBackdrop').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('overlayBackdrop')) closeOverlay();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeOverlay();
+  });
+
+  // ── CAROUSEL ──
+  const track = document.getElementById('carouselTrack');
+  const cards = Array.from(track.querySelectorAll('.project-card'));
+  const dotsContainer = document.getElementById('carouselDots');
+  let currentIndex = 0;
+  const CARD_WIDTH = 340;
+  const CARD_GAP = 24;
+  const CARD_STEP = CARD_WIDTH + CARD_GAP;
+
+  // build dots
+  cards.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => goToSlide(i);
+    dotsContainer.appendChild(dot);
+  });
+
+  function updateCards() {
+    cards.forEach((card, i) => {
+      card.classList.toggle('center', i === currentIndex);
+    });
+  }
+
+  function getOffset() {
+    try {
+      const trackOuter = document.querySelector('.carousel-track-outer');
+      const outerWidth = trackOuter ? trackOuter.offsetWidth : window.innerWidth;
+      if (!outerWidth) return 40;
+      return (outerWidth / 2) - (CARD_WIDTH / 2) - 40;
+    } catch(e) {
+      return 40;
+    }
+  }
+
+  function goToSlide(index) {
+    currentIndex = Math.max(0, Math.min(index, cards.length - 1));
+    const centerOffset = getOffset();
+    const translateX = -(currentIndex * CARD_STEP) + centerOffset;
+    track.style.transform = `translateX(${translateX}px)`;
+
+    document.querySelectorAll('.carousel-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === currentIndex);
+    });
+
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    if (prevBtn) prevBtn.disabled = currentIndex === 0;
+    if (nextBtn) nextBtn.disabled = currentIndex >= cards.length - 1;
+
+    updateCards();
+  }
+
+  function moveCarousel(dir) {
+    goToSlide(currentIndex + dir);
+  }
+
+  // ── TOUCH / DRAG SCROLL ──
+  let dragStartX = 0;
+  let isDragging = false;
+
+  track.addEventListener('mousedown', e => {
+    isDragging = true;
+    dragStartX = e.clientX;
+    track.style.transition = 'none';
+  });
+
+  document.addEventListener('mouseup', e => {
+    if (!isDragging) return;
+    isDragging = false;
+    track.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+    const delta = dragStartX - e.clientX;
+    if (Math.abs(delta) > 50) {
+      moveCarousel(delta > 0 ? 1 : -1);
+    } else {
+      goToSlide(currentIndex);
+    }
+  });
+
+  track.addEventListener('touchstart', e => {
+    dragStartX = e.touches[0].clientX;
+  }, { passive: true });
+
+  track.addEventListener('touchend', e => {
+    const delta = dragStartX - e.changedTouches[0].clientX;
+    if (Math.abs(delta) > 50) {
+      moveCarousel(delta > 0 ? 1 : -1);
+    }
+  }, { passive: true });
+
+  // keyboard nav
+  document.addEventListener('keydown', e => {
+    if (document.getElementById('overlayBackdrop').classList.contains('open')) return;
+    if (e.key === 'ArrowLeft') moveCarousel(-1);
+    if (e.key === 'ArrowRight') moveCarousel(1);
+  });
+
+  // recalculate on resize
+  window.addEventListener('resize', () => goToSlide(currentIndex));
+
+  // init after layout paints
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      goToSlide(0);
+    });
+  });
+
+  // ── HAMBURGER ──
+  const hamburger = document.getElementById('hamburger');
+  const navMenu = document.getElementById('navMenu');
+  const navOverlay = document.getElementById('navOverlay');
+
+  function closeMenu() {
+    hamburger.classList.remove('open');
+    navMenu.classList.remove('open');
+    navOverlay.classList.remove('open');
+  }
+
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    navMenu.classList.toggle('open');
+    navOverlay.classList.toggle('open');
+  });
+
+  navOverlay.addEventListener('click', closeMenu);
+
+  // ── SCROLL REVEAL ──
+  function revealAll() {
+    document.querySelectorAll('.reveal').forEach(el => {
+      el.classList.add('visible');
+    });
+  }
+
+  // Use IntersectionObserver where supported, fallback to immediate reveal
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Always trigger hero text immediately on load
+    setTimeout(() => {
+      document.querySelectorAll('#hero .reveal').forEach(el => el.classList.add('visible'));
+    }, 80);
+
+    // Safety net: reveal everything after 1.2s in case observer misses anything
+    setTimeout(revealAll, 1200);
+  } else {
+    // Fallback for browsers without IntersectionObserver
+    revealAll();
+  }
+
+</script>
+</body>
+</html>
