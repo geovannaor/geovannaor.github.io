@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Home Lab — Network Topology | Soft Armor HQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:        #0d0f0e;
+      --surface:   #141714;
+      --border:    #1f2620;
+      --green:     #1F6B3A;
+      --green-dim: #163d24;
+      --green-glow:#2a9c52;
+      --text:      #c8d4c9;
+      --text-dim:  #6b7d6c;
+      --text-bright:#e8f0e8;
+      --mono:      'IBM Plex Mono', monospace;
+      --sans:      'IBM Plex Sans', sans-serif;
+      --amber:     #c8952a;
+      --red:       #8f3a3a;
+      --red-dim:   #5c2020;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.7;
+      padding: 0 0 80px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 32px 48px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .brand {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      color: var(--green-glow);
+      text-transform: uppercase;
+    }
+
+    .page-title {
+      font-family: var(--mono);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-bright);
+      letter-spacing: -0.02em;
+      margin-top: 8px;
+    }
+
+    .page-meta {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      text-align: right;
+    }
+
+    /* ── LAYOUT ── */
+    main {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 48px;
+    }
+
+    section {
+      margin-top: 64px;
+    }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      color: var(--green-glow);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h2 {
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-bright);
+      margin-bottom: 20px;
+    }
+
+    p {
+      color: var(--text);
+      margin-bottom: 14px;
+      max-width: 720px;
+    }
+
+    /* ── TOPOLOGY DIAGRAM ── */
+    .topology {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 40px 32px;
+      margin-top: 8px;
+      overflow-x: auto;
+    }
+
+    .topo-grid {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      min-width: 600px;
+    }
+
+    .topo-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      width: 100%;
+    }
+
+    .topo-node {
+      background: var(--green-dim);
+      border: 1px solid var(--green);
+      border-radius: 4px;
+      padding: 12px 20px;
+      min-width: 160px;
+      text-align: center;
+    }
+
+    .topo-node.secondary {
+      background: #111a13;
+      border-color: #2a3d2c;
+      min-width: 140px;
+    }
+
+    .topo-node.vm {
+      background: #0f1a1a;
+      border-color: #1a3030;
+      min-width: 130px;
+    }
+
+    .topo-node.inactive {
+      background: #111111;
+      border-color: #222222;
+      opacity: 0.5;
+      min-width: 130px;
+    }
+
+    .node-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-bright);
+      letter-spacing: 0.05em;
+    }
+
+    .node-sub {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    .node-ip {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--green-glow);
+      margin-top: 4px;
+    }
+
+    /* connectors */
+    .connector-v {
+      width: 2px;
+      height: 32px;
+      background: var(--green);
+      margin: 0 auto;
+      opacity: 0.5;
+    }
+
+    .connector-h {
+      height: 2px;
+      flex: 1;
+      background: var(--border);
+      opacity: 0.6;
+    }
+
+    .connector-h.active {
+      background: var(--green);
+      opacity: 0.5;
+    }
+
+    /* branch row */
+    .branch-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    .branch-line {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      width: 100%;
+      position: relative;
+    }
+
+    .branch-trunk {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .branch-arms {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 0;
+    }
+
+    .branch-arm {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* port badge */
+    .port-badge {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--green-glow);
+      background: var(--green-dim);
+      border: 1px solid var(--green);
+      border-radius: 2px;
+      padding: 1px 5px;
+      margin: 4px auto;
+      display: inline-block;
+    }
+
+    /* vlan badge */
+    .vlan-badge {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--amber);
+      background: #1a1500;
+      border: 1px solid #3d3000;
+      border-radius: 2px;
+      padding: 1px 5px;
+      margin-top: 3px;
+      display: inline-block;
+    }
+
+    /* ── SWITCH PORT TABLE ── */
+    .port-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--mono);
+      font-size: 12px;
+      margin-top: 16px;
+    }
+
+    .port-table th {
+      text-align: left;
+      color: var(--text-dim);
+      font-weight: 500;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .port-table td {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: top;
+    }
+
+    .port-table tr:last-child td { border-bottom: none; }
+
+    .port-table tr:hover td { background: var(--surface); }
+
+    .status-active {
+      color: var(--green-glow);
+      font-weight: 600;
+    }
+
+    .status-down {
+      color: var(--text-dim);
+    }
+
+    .status-reserved {
+      color: var(--amber);
+    }
+
+    /* ── VLAN TABLE ── */
+    .config-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+
+    .config-block table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .config-block th {
+      background: var(--green-dim);
+      color: var(--text-dim);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .config-block td {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .config-block tr:last-child td { border-bottom: none; }
+
+    /* ── TROUBLESHOOTING LOG ── */
+    .ts-entry {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      margin-top: 24px;
+      overflow: hidden;
+    }
+
+    .ts-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #101410;
+    }
+
+    .ts-title {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-bright);
+    }
+
+    .ts-date {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    .ts-body {
+      padding: 20px;
+    }
+
+    .ts-field {
+      margin-bottom: 20px;
+    }
+
+    .ts-field:last-child { margin-bottom: 0; }
+
+    .ts-field-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      color: var(--green-glow);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .ts-field p {
+      font-size: 14px;
+      color: var(--text);
+      max-width: 100%;
+      margin-bottom: 8px;
+    }
+
+    .failure-chain {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .failure-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .failure-num {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      min-width: 20px;
+      margin-top: 2px;
+    }
+
+    .failure-text {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .failure-text .label {
+      color: var(--amber);
+      font-weight: 600;
+    }
+
+    .failure-text .fix {
+      color: var(--green-glow);
+    }
+
+    .resolution-tag {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 10px;
+      background: #0d1f10;
+      border: 1px solid var(--green);
+      color: var(--green-glow);
+      border-radius: 2px;
+      padding: 2px 8px;
+      margin-top: 12px;
+    }
+
+    .tool-used {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 10px;
+      background: #1a1500;
+      border: 1px solid #3d3000;
+      color: var(--amber);
+      border-radius: 2px;
+      padding: 2px 8px;
+      margin: 2px 4px 2px 0;
+    }
+
+    /* ── VM LAB TABLE ── */
+    .vm-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .vm-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 16px;
+    }
+
+    .vm-card.kali { border-left: 3px solid #4a90d9; }
+    .vm-card.ubuntu { border-left: 3px solid #e05c1e; }
+    .vm-card.win { border-left: 3px solid #0078d4; }
+    .vm-card.meta { border-left: 3px solid var(--red); }
+
+    .vm-name {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-bright);
+      margin-bottom: 6px;
+    }
+
+    .vm-detail {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    .vm-ip {
+      color: var(--green-glow);
+      margin-top: 4px;
+    }
+
+    /* ── OUTCOME BOX ── */
+    .outcome-box {
+      background: #0a1a0c;
+      border: 1px solid var(--green);
+      border-radius: 4px;
+      padding: 20px;
+      margin-top: 24px;
+    }
+
+    .outcome-box .ts-field-label {
+      margin-bottom: 12px;
+    }
+
+    .outcome-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .outcome-list li {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .outcome-list li::before {
+      content: '✓';
+      color: var(--green-glow);
+      font-weight: 700;
+      min-width: 14px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-top: 80px;
+      border-top: 1px solid var(--border);
+      padding: 24px 48px;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 680px) {
+      header {
+        padding: 24px 20px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .page-title { font-size: 17px; }
+      .page-meta { text-align: left; font-size: 10px; }
+      main { padding: 0 20px; }
+      section { margin-top: 48px; }
+      h2 { font-size: 15px; }
+
+      .topology {
+        padding: 20px 12px;
+      }
+      .topology::before {
+        content: '← scroll to view full diagram →';
+        display: block;
+        font-family: var(--mono);
+        font-size: 9px;
+        color: var(--text-dim);
+        letter-spacing: 0.1em;
+        text-align: center;
+        margin-bottom: 14px;
+      }
+
+      .config-block { overflow-x: auto; }
+      .config-block table { min-width: 500px; }
+
+      .port-table {
+        display: block;
+        overflow-x: auto;
+        min-width: 480px;
+      }
+
+      .vm-grid { grid-template-columns: 1fr; }
+
+      .ts-header {
+        flex-direction: column;
+        gap: 6px;
+        align-items: flex-start;
+      }
+      .ts-title { font-size: 12px; }
+      .ts-body { padding: 16px; }
+      .failure-text { font-size: 11px; }
+      .outcome-list li { font-size: 11px; }
+
+      .branch-arms {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+      .branch-arm {
+        width: 100%;
+        max-width: 220px;
+      }
+
+      footer {
+        padding: 20px;
+        flex-direction: column;
+        gap: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="brand">Soft Armor HQ — Home Lab</div>
+    <div class="page-title">Network Topology & Configuration</div>
+  </div>
+  <div class="page-meta">
+    Kings Park, NY<br>
+    Established October 2025<br>
+    Last updated July 3, 2026
+  </div>
+</header>
+
+<main>
+
+  <!-- ── TOPOLOGY ── -->
+  <section>
+    <div class="section-label">01 — Network Topology</div>
+    <h2>Physical Network Diagram</h2>
+    <p>Full network from ISP edge to virtual lab environment. The lab is isolated downstream of the eero on a dedicated managed switch, physically separated from household and work traffic.</p>
+
+    <div class="topology">
+      <div class="topo-grid">
+
+        <!-- ISP Modem -->
+        <div class="topo-row">
+          <div class="topo-node">
+            <div class="node-label">ISP MODEM</div>
+            <div class="node-sub">Optimum / Bridged Mode</div>
+            <div class="node-sub">WAN Edge</div>
+          </div>
+        </div>
+
+        <div class="connector-v"></div>
+
+        <!-- Eero -->
+        <div class="topo-row">
+          <div class="topo-node">
+            <div class="node-label">EERO (PRIMARY)</div>
+            <div class="node-sub">Main Router · DHCP · NAT</div>
+            <div class="node-sub">WiFi Mesh + 2 APs</div>
+            <div class="node-ip">Gateway: 192.168.4.1</div>
+          </div>
+        </div>
+
+        <div class="connector-v"></div>
+
+        <!-- Switch -->
+        <div class="topo-row">
+          <div class="topo-node" style="min-width:200px;">
+            <div class="node-label">TP-LINK TL-SG108PE</div>
+            <div class="node-sub">8-Port Managed Switch · 4x PoE+</div>
+            <div class="node-sub">802.1Q VLAN · Port Mirroring</div>
+            <div class="node-ip">192.168.5.36 (static)</div>
+          </div>
+        </div>
+
+        <div class="connector-v"></div>
+
+        <!-- Branch: Switch ports -->
+        <div class="branch-arms" style="width:100%; justify-content:center; gap:12px;">
+
+          <div class="branch-arm">
+            <div class="port-badge">PORT 5</div>
+            <div class="connector-v" style="height:20px;"></div>
+            <div class="topo-node secondary">
+              <div class="node-label">WORK PC</div>
+              <div class="node-sub">Wired · VLAN 1</div>
+              <div class="node-sub">Employer-managed</div>
+            </div>
+          </div>
+
+          <div class="branch-arm">
+            <div class="port-badge">PORT 6</div>
+            <div class="vlan-badge">VLAN 10 · LAB</div>
+            <div class="connector-v" style="height:8px;"></div>
+            <div class="topo-node">
+              <div class="node-label">LENOVO V15</div>
+              <div class="node-sub">Lab Host · 40GB RAM</div>
+              <div class="node-sub">VirtualBox Hypervisor</div>
+              <div class="node-ip">192.168.5.35</div>
+            </div>
+          </div>
+
+          <div class="branch-arm">
+            <div class="port-badge">PORT 7</div>
+            <div class="connector-v" style="height:20px;"></div>
+            <div class="topo-node secondary">
+              <div class="node-label">UGREEN HUB</div>
+              <div class="node-sub">Mirror Destination</div>
+              <div class="node-sub">→ V15 USB-C NIC</div>
+            </div>
+          </div>
+
+          <div class="branch-arm">
+            <div class="port-badge">PORT 8</div>
+            <div class="connector-v" style="height:20px;"></div>
+            <div class="topo-node secondary">
+              <div class="node-label">EERO UPLINK</div>
+              <div class="node-sub">Tagged Trunk</div>
+              <div class="node-sub">VLAN 10 + 20</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- VM Layer -->
+        <div style="margin-top:32px; width:100%; text-align:center;">
+          <div class="node-sub" style="font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:0.1em; margin-bottom:12px;">── VIRTUAL MACHINES (VirtualBox · Internal Networking) ──</div>
+          <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+            <div class="topo-node vm">
+              <div class="node-label">KALI-INVESTIGATOR</div>
+              <div class="node-sub">Analysis · Scanning · Capture</div>
+              <div class="node-ip">192.168.10.10</div>
+            </div>
+            <div class="topo-node vm">
+              <div class="node-label">UBUNTU-SERVER-LAB</div>
+              <div class="node-sub">Linux Server · SSH · UFW</div>
+              <div class="node-ip">192.168.10.20</div>
+            </div>
+            <div class="topo-node vm">
+              <div class="node-label">WINDOWS11-EVAL</div>
+              <div class="node-sub">Windows · PowerShell</div>
+              <div class="node-ip">192.168.10.30</div>
+            </div>
+            <div class="topo-node vm" style="border-color: var(--red); background: var(--red-dim);">
+              <div class="node-label">MSF2-TARGET</div>
+              <div class="node-sub">Intentionally Vulnerable</div>
+              <div class="node-sub">Host-Only · No Internet</div>
+              <div class="node-ip">192.168.10.40</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SWITCH CONFIG ── -->
+  <section>
+    <div class="section-label">02 — Switch Configuration</div>
+    <h2>Port Assignment</h2>
+
+    <div class="config-block">
+      <table>
+        <thead>
+          <tr>
+            <th>Port</th>
+            <th>Status</th>
+            <th>Connected Device</th>
+            <th>VLAN</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1–4</td>
+            <td class="status-down">Link Down</td>
+            <td>—</td>
+            <td>—</td>
+            <td>PoE+ ports · available</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td class="status-active">1000MF</td>
+            <td>Work PC</td>
+            <td>VLAN 1 (Default)</td>
+            <td>Wired workstation</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td class="status-active">1000MF</td>
+            <td>Lenovo V15 (Lab Host)</td>
+            <td>VLAN 10 · LAB · PVID 10</td>
+            <td>Primary lab connection · mirror source</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td class="status-reserved">Reserved</td>
+            <td>UGREEN Hub (pending)</td>
+            <td>Mirror destination</td>
+            <td>Passive packet capture interface · Wireshark</td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td class="status-active">1000MF</td>
+            <td>Eero (uplink)</td>
+            <td>Internet uplink · router gateway · no inter-VLAN routing</td>
+            
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 style="margin-top:32px;">802.1Q VLAN Configuration</h2>
+    <div class="config-block">
+      <table>
+        <thead>
+          <tr>
+            <th>VLAN ID</th>
+            <th>Name</th>
+            <th>Member Ports</th>
+            <th>Tagged Ports</th>
+            <th>Untagged Ports</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Default</td>
+            <td>1–8</td>
+            <td>—</td>
+            <td>1–8</td>
+            <td>Native VLAN · factory default</td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td style="color:var(--green-glow);">LAB</td>
+            <td>6, 8</td>
+            <td>8</td>
+            <td>6</td>
+            <td>Primary lab traffic · Kali, Ubuntu, Win11</td>
+          </tr>
+          <tr>
+            <td>20</td>
+            <td style="color:var(--amber);">ISOLATED</td>
+            <td>8</td>
+            <td>8</td>
+            <td>—</td>
+            <td>Reserved for future physical isolation · Metasploitable2 currently isolated at hypervisor level via VirtualBox Host-Only networking</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 style="margin-top:32px;">Port Mirror Configuration</h2>
+    <div class="config-block">
+      <table>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Mirroring Port (destination)</td>
+            <td style="color:var(--green-glow);">Port 7</td>
+            <td>UGREEN hub → V15 USB-C NIC → Wireshark</td>
+          </tr>
+          <tr>
+            <td>Mirrored Port (source)</td>
+            <td style="color:var(--green-glow);">Port 6</td>
+            <td>All traffic to/from lab host</td>
+          </tr>
+          <tr>
+            <td>Ingress</td>
+            <td style="color:var(--green-glow);">Enabled</td>
+            <td>Captures inbound traffic on Port 6</td>
+          </tr>
+          <tr>
+            <td>Egress</td>
+            <td style="color:var(--green-glow);">Enabled</td>
+            <td>Captures outbound traffic on Port 6</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── VIRTUAL LAB ── -->
+  <section>
+    <div class="section-label">03 — Virtual Lab Environment</div>
+    <h2>VM Inventory</h2>
+    <p>All VMs run on VirtualBox on the Lenovo V15. Network segmentation between VMs is handled at the hypervisor level using internal and host-only networking adapters. Physical switch VLANs segment the lab host from other physical network devices.</p>
+
+    <div class="vm-grid">
+      <div class="vm-card kali">
+        <div class="vm-name">Kali-Investigator</div>
+        <div class="vm-detail">Role: Analysis · scanning · packet capture<br>
+        Network: VirtualBox Internal Network<br>
+        Reach: MSF2-Target via internal network only<br>
+        <span class="vm-ip">192.168.10.10</span></div>
+      </div>
+      <div class="vm-card ubuntu">
+        <div class="vm-name">Ubuntu-Server-Lab</div>
+        <div class="vm-detail">Role: Linux server · SSH · UFW · service management<br>
+        Network: NAT + Internal<br>
+        <span class="vm-ip">192.168.10.20</span></div>
+      </div>
+      <div class="vm-card win">
+        <div class="vm-name">Windows11-Eval</div>
+        <div class="vm-detail">Role: Windows visibility · PowerShell practice<br>
+        Network: NAT + Internal<br>
+        <span class="vm-ip">192.168.10.30</span></div>
+      </div>
+      <div class="vm-card meta">
+        <div class="vm-name">MSF2-Target</div>
+        <div class="vm-detail">Role: Intentionally vulnerable target<br>
+        Network: Host-Only · no internet access<br>
+        Isolation: Hypervisor level (VirtualBox) · VLAN 20 reserved for future physical segmentation<br>
+        <span class="vm-ip">192.168.10.40</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TROUBLESHOOTING LOG ── -->
+  <section>
+    <div class="section-label">04 — Troubleshooting Log</div>
+    <h2>Field Diagnostic Entry</h2>
+    <p>Documented diagnostic session: initial switch setup, management plane unreachable, ARP discovery failure, and resolution path. July 3, 2026.</p>
+
+    <div class="ts-entry">
+      <div class="ts-header">
+        <div class="ts-title">TL-SG108PE · Initial Setup · Management UI Unreachable</div>
+        <div class="ts-date">July 3, 2026</div>
+      </div>
+      <div class="ts-body">
+
+        <div class="ts-field">
+          <div class="ts-field-label">Problem Statement</div>
+          <p>Newly acquired TP-Link TL-SG108PE (used, unknown prior configuration) was physically connected to the network — eero LAN port → switch Port 8, laptop → switch Port 6. The switch was successfully forwarding Layer 2 Ethernet frames and the host laptop had full internet connectivity routed through it. However, the switch management plane was completely unreachable. The default management IP (192.168.0.1) and the TP-Link fallback hostname (tplinkswitch.net) both failed. The eero app showed zero wired devices despite the physical connection being confirmed active.</p>
+        </div>
+
+        <div class="ts-field">
+          <div class="ts-field-label">Failure Points Identified</div>
+          <div class="failure-chain">
+            <div class="failure-item">
+              <div class="failure-num">F1</div>
+              <div class="failure-text"><span class="label">Cable fault (suspected).</span> First cable swapped — eero still not detecting the switch on Port 2. Ruled out cable as sole cause but confirmed cable integrity matters at this layer.</div>
+            </div>
+            <div class="failure-item">
+              <div class="failure-num">F2</div>
+              <div class="failure-text"><span class="label">Static IP conflict from prior config.</span> The used switch had a previous owner's static IP configuration. Its management interface was sitting on an IP outside the current subnet, making it invisible to ARP and the eero DHCP table. The switch continued forwarding Layer 2 Ethernet frames independently of its management interface, demonstrating the separation between the switching plane and the management plane. A Layer 2 device operates on MAC address tables, not management IP reachability — which is why the laptop retained internet access while the switch remained undiscoverable.</div>
+            </div>
+            <div class="failure-item">
+              <div class="failure-num">F3</div>
+              <div class="failure-text"><span class="label">Factory reset incomplete on first attempt.</span> Initial reset did not fully wipe prior configuration. A full power cycle (physical unplug, 30-second wait, cold boot) was required to force a clean state and trigger a fresh DHCP request.</div>
+            </div>
+            <div class="failure-item">
+              <div class="failure-num">F4</div>
+              <div class="failure-text"><span class="label">Laptop static IP mismatch.</span> Early troubleshooting attempt set a manual static IP on the laptop to reach the switch's expected fallback address (192.168.0.1). This prevented the laptop from being on the eero's DHCP subnet and made ARP lookups unreliable. Resolved by returning ethernet adapter to DHCP before running ARP discovery.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ts-field">
+          <div class="ts-field-label">Diagnostic Methodology</div>
+          <p>OSI Layer 1 through Layer 3 verification. Worked from the physical layer upward. Verified link lights on the switch before touching any software configuration. Swapped cables to eliminate physical layer variables. Confirmed eero was receiving traffic from the switch by checking the eero app's connected devices panel — "Multiple devices" appearing on Port 2 confirmed Layer 2 connectivity even when the management interface was invisible.</p>
+          <p>Used <code style="font-family:var(--mono); color:var(--amber); font-size:12px;">ipconfig</code> to identify current subnet and gateway, then <code style="font-family:var(--mono); color:var(--amber); font-size:12px;">arp -a</code> to enumerate devices on the network. Cross-referenced ARP physical addresses against the switch's MAC label to confirm identity.</p>
+          <div style="margin-top:12px;">
+            <span class="tool-used">Link light observation</span>
+            <span class="tool-used">eero app · device panel</span>
+            <span class="tool-used">ipconfig</span>
+            <span class="tool-used">arp -a</span>
+            <span class="tool-used">MAC label cross-reference</span>
+            <span class="tool-used">Factory reset (pinhole)</span>
+            <span class="tool-used">Power cycle</span>
+          </div>
+        </div>
+
+        <div class="ts-field">
+          <div class="ts-field-label">Resolution Path</div>
+          <div class="failure-chain">
+            <div class="failure-item">
+              <div class="failure-num">R1</div>
+              <div class="failure-text"><span class="fix">Replaced cable</span> — eliminated physical layer variable.</div>
+            </div>
+            <div class="failure-item">
+              <div class="failure-num">R2</div>
+              <div class="failure-text"><span class="fix">Factory reset via pinhole button</span> — cleared prior owner's static IP configuration. Reset confirmed by simultaneous flash of all port LEDs.</div>
+            </div>
+            <div class="failure-item">
+              <div class="failure-num">R3</div>
+              <div class="failure-text"><span class="fix">Full power cycle</span> (physical unplug, cold boot) — forced switch to send a fresh DHCP discover to the eero. Switch was assigned 192.168.5.36 and appeared in eero device list as TL-SG108PE with correct MAC.</div>
+            </div>
+            <div class="failure-item">
+              <div class="failure-num">R4</div>
+              <div class="failure-text"><span class="fix">Accessed management plane at http://192.168.5.36</span> — login successful with factory credentials. Changed admin password immediately. Set static IP in switch UI to lock management address permanently.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="outcome-box">
+          <div class="ts-field-label">Outcome</div>
+          <ul class="outcome-list">
+            <li>Switch management accessible at static IP 192.168.5.36</li>
+            <li>Admin credentials changed from factory default</li>
+            <li>802.1Q VLAN enabled · VLAN 10 configured for lab host segmentation · VLAN 20 reserved for future expansion with a VLAN-aware router/firewall</li>
+            <li>Port 6 PVID set to 10 — lab host traffic correctly assigned to LAB VLAN</li>
+            <li>Port 8 configured as router uplink · VLAN trunking reserved for future use with a VLAN-aware router/firewall</li>
+            <li>Port mirroring enabled — Port 7 as destination, Port 6 as source (ingress + egress)</li>
+            <li>Switch configuration saved to non-volatile memory</li>
+          </ul>
+          <div class="resolution-tag">RESOLVED · Layer 2 config complete</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span>Soft Armor HQ · softarmorhq.com</span>
+  <span>Geovanna Orlando · Kings Park, NY · July 2026</span>
+</footer>
+
+</body>
+</html>
